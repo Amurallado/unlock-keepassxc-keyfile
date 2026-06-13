@@ -1,0 +1,16 @@
+[package]
+name = "kplock"
+version = "0.1.0"
+edition = "2021"
+description = "Secure CLI tool to unlock KeePassXC with an encrypted keyfile"
+
+[dependencies]
+clap      = { version = "4", features = ["derive"] }
+serde     = { version = "1", features = ["derive"] }
+toml      = "0.8"
+dirs      = "5"
+age       = { version = "0.11", features = [] }
+ctrlc     = "3"
+anyhow    = "1"
+zeroize   = { version = "1", features = ["derive"] }
+rpassword = "7"

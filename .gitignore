@@ -1,0 +1,9 @@
+# Archivos de claves (por seguridad)
+*.key
+*.key.age
+*.key.gpg
+
+
+# Added by cargo
+
+/target
