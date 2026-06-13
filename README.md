@@ -1,66 +1,43 @@
-# 🔐 Scripts para Desbloquear KeePassXC con Keyfile Encriptado
+# 🔐 kplock – Secure CLI to Unlock KeePassXC with Encrypted Keyfile
 
-¡Automatiza y protege el acceso a tu bóveda KeePassXC usando un archivo clave cifrado con GPG!
+**kplock** is a Rust‑based tool that unlocks KeePassXC using an encrypted keyfile encrypted with **age**. The workflow is fully automated and guarantees that the decrypted keyfile exists only while KeePassXC is running, securely wiping it afterwards.
 
-## 🚀 ¿Qué hacen estos scripts?
+## 🚀 Features
+- **Encryption with age** (scrypt + X25519) – no external dependencies.
+- **RAII & Drop** to ensure safe removal of the temporary keyfile.
+- **Cross‑platform** (Linux, Windows).
+- **No legacy scripts** – the entire process is implemented in Rust.
 
-- **Desbloquean tu archivo clave cifrado** (`keyfile.key.gpg`) usando GPG.
-- **Abren KeePassXC** con el keyfile temporal.
-- **Esperan a que KeePassXC se cierre y eliminan de forma segura** el keyfile temporal, para que nunca quede desprotegido en el disco.
-
-## 📂 Archivos
-
-- [`setup_keyfile.sh`](setup_keyfile.sh): Asistente para encriptar tu `keyfile.key`.
-- [`kp_unlock_linux.sh`](kp_unlock_linux.sh): Script mejorado para sistemas Linux.
-- [`kp_unlock_windows.ps1`](kp_unlock_windows.ps1): Script mejorado para Windows PowerShell.
-
-## 🛠️ Cómo Empezar
-
-### Paso 1: Crea y Encripta tu Keyfile
-
-1.  **Crea un keyfile:** Puedes usar KeePassXC para generar un nuevo archivo (`keyfile.key`) o usar uno que ya tengas.
-2.  **Encripta el keyfile:** Coloca `keyfile.key` en el directorio y ejecuta el asistente:
-
-    ```sh
-    bash setup_keyfile.sh
-    ```
-    El script te pedirá tu GPG User ID y creará `keyfile.key.gpg`.
-
-### Paso 2: Configura el Script de Desbloqueo
-
-Antes de usar los scripts, ábrelos y ajusta las rutas en la sección de **Configuración** para que coincidan con tu sistema.
-
-**En `kp_unlock_linux.sh`:**
+## 📦 Installation
 ```bash
-ENCRYPTED_KEYFILE_PATH="$HOME/.clave_kp/keyfile.key.gpg"
-KEEPASSXC_BINARY="keepassxc"
+# Clone the repository
+git clone <repo-url> kplock && cd kplock
+
+# Build (release)
+cargo build --release
 ```
+The binary will be located at `target/release/kplock`.
 
-**En `kp_unlock_windows.ps1`:**
-```powershell
-$EncryptedKeyfilePath = "$env:USERPROFILE\.clave_kp\keyfile.key.gpg"
-$KeePassXCPath = "C:\Program Files\KeePassXC\KeePassXC.exe"
+## 🛠️ Usage
+### Encrypt a keyfile
+```bash
+./target/release/kplock encrypt -i ./keyfile.key -o ./keyfile.key.age
 ```
+- `-i` : path to the plain‑text keyfile (default `./keyfile.key`).
+- `-o` : optional output path for the encrypted file.
 
-### Paso 3: Ejecuta el Script
-
-Una vez configurado, ya puedes usarlo.
-
-**En Linux:**
-```sh
-bash kp_unlock_linux.sh
+### Unlock KeePassXC
+```bash
+./target/release/kplock unlock
 ```
+The program:
+1. Decrypts the encrypted keyfile (configured in `~/.config/kplock/config.toml`).
+2. Launches KeePassXC pointing to the temporary keyfile.
+3. Waits for KeePassXC to close.
+4. Securely wipes the temporary keyfile with overwriting.
 
-**En Windows (PowerShell):**
-```powershell
-.\kp_unlock_windows.ps1
-```
+## ⚙️ Configuration
+On first run it creates `~/.config/kplock/config.toml` with the path to the encrypted keyfile and other parameters. Edit it if you need to change the location.
 
-## 💡 Consejo de Seguridad
-
-Gracias a las mejoras, el keyfile temporal solo existe mientras KeePassXC está en ejecución. En cuanto cierras el programa, el script lo detecta y **elimina el archivo de forma segura y automática**.
-
----
-
-¡Mantén tu bóveda segura y tu flujo de trabajo ágil! 🚦
-
+## 📜 License
+This project is licensed under the MIT license.
